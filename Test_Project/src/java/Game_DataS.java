@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DateFormat;
@@ -52,6 +53,7 @@ public class Game_DataS extends HttpServlet
     protected String password = "icsd13155";
     protected ArrayList < ObjectA > ListA = new ArrayList < ObjectA > ( ) ;
     protected ArrayList < Player_Statistics > ListPS = new ArrayList < Player_Statistics > ( ) ;
+    protected ArrayList < PlayerName > ListPN = new ArrayList < PlayerName > ( ) ;
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -129,21 +131,8 @@ public class Game_DataS extends HttpServlet
                 } //extracted all STATIC INFO, now go to txt;s
                 else 
                 {
-                    //Connect to DB
-                    Class.forName("oracle.jdbc.driver.OracleDriver").newInstance();
-                    String connectionURL = "jdbc:oracle:thin:@" + serverURL + ":" + serverPort + ":" + serverSID;
-                    conn = DriverManager.getConnection(connectionURL, username, password);
-                    // End connection DB
-
-                    //Now insert this Team in table SGame
-                    String qString1 = "insert into SGame values( " + "'" + datetime + "','" + field + "', " + Ivisitors + " ,'" + hteamname + "','" + fteamname + "', '" + (hteamname + " " + fteamname) + "' )";
-                    statement = conn.createStatement();
-                    statement.execute(qString1);
-                    statement.close();
-                    conn.close ( ) ;
-                    //System.out.println("" + qString1);
                     //Call Method that parses txt and do the inserts
-                    TXT_FILES_PROCESS(fileItem.getString(), fileItem.getFieldName(), out, hteamname, fteamname );
+                    TXT_FILES_PROCESS ( fileItem.getString ( ), fileItem.getFieldName ( ), out, hteamname, fteamname, datetime, field, Ivisitors ) ;
                 }
             }
             
@@ -286,7 +275,7 @@ public class Game_DataS extends HttpServlet
     
     
     
-    void TXT_FILES_PROCESS ( String GetString, String FieldName, PrintWriter Out,String HostTeam, String ForeignTeam ) throws IOException, ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException
+    void TXT_FILES_PROCESS ( String GetString, String FieldName, PrintWriter Out,String HostTeam, String ForeignTeam, String datetime, String field, Integer Ivisitors ) throws IOException, ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException
     {
         BufferedReader bufferedReader = new BufferedReader( new StringReader ( GetString ) ) ;
         String line = null ;
@@ -299,6 +288,9 @@ public class Game_DataS extends HttpServlet
         String connectionURL = "jdbc:oracle:thin:@" + serverURL + ":" + serverPort + ":" + serverSID;
         conn = DriverManager.getConnection(connectionURL, username, password);
         // End connection DB
+        
+        //Array to calculate Points of each Team
+        int HCounter = 0, FCounter = 0 ;
         
         //now search to txt and do Parsing
         while ((line = bufferedReader.readLine()) != null) 
@@ -407,10 +399,16 @@ public class Game_DataS extends HttpServlet
                 //
                 DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
                 Date date = new Date();
+                
                 ListA.add ( new ObjectA ( HostTeam + " " + Strs[0] ) ) ;
+                
                 ListPS.add ( new Player_Statistics ( HostTeam + " " + ForeignTeam, MIN, Integer.parseInt( Strs[2] ), DBL1_FG2, DBL2_FG3, DBL3_FT, Integer.parseInt( Strs[6] ),  Integer.parseInt( Strs[7] ),
                 Integer.parseInt( Strs[8] ) ,  Integer.parseInt( Strs[9] ) ,  Integer.parseInt( Strs[10] ) ,  Integer.parseInt( Strs[11] ) , Integer.parseInt( Strs[12] ) , Integer.parseInt( Strs[13] ), 
-                Integer.parseInt( Strs[14] ) ,  Integer.parseInt( Strs[15] ) ,  Integer.parseInt ( Strs[16] ) , dateFormat.format ( date ) + HostTeam + " " + ForeignTeam ) );
+                Integer.parseInt( Strs[14] ) ,  Integer.parseInt( Strs[15] ) ,  Integer.parseInt ( Strs[16] ) , dateFormat.format ( date ) + " " + HostTeam ) );
+                
+                ListPN.add ( new PlayerName ( Strs [0],dateFormat.format ( date ) + " " + HostTeam  ) ) ;
+                //
+                HCounter = HCounter + Integer.parseInt( Strs[2] ) ;
             }
             
             //ForeignTeam
@@ -488,12 +486,27 @@ public class Game_DataS extends HttpServlet
                 //
                 DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
                 Date date = new Date();
+                
                 ListA.add ( new ObjectA ( ForeignTeam + " " + Strs[0] ) ) ;
-                ListPS.add ( new Player_Statistics ( HostTeam + " " + ForeignTeam, MIN, Integer.parseInt( Strs[2] ), DBL1_FG2, DBL2_FG3, DBL3_FT, Integer.parseInt( Strs[6] ),  Integer.parseInt( Strs[7] ),
+                
+                ListPS.add ( new Player_Statistics (  HostTeam + " " + ForeignTeam, MIN, Integer.parseInt( Strs[2] ), DBL1_FG2, DBL2_FG3, DBL3_FT, Integer.parseInt( Strs[6] ),  Integer.parseInt( Strs[7] ),
                 Integer.parseInt( Strs[8] ) ,  Integer.parseInt( Strs[9] ) ,  Integer.parseInt( Strs[10] ) ,  Integer.parseInt( Strs[11] ) , Integer.parseInt( Strs[12] ) , Integer.parseInt( Strs[13] ), 
-                Integer.parseInt( Strs[14] ) ,  Integer.parseInt( Strs[15] ) ,  Integer.parseInt ( Strs[16] ) , dateFormat.format ( date ) + HostTeam + " " + ForeignTeam ) );
+                Integer.parseInt( Strs[14] ) ,  Integer.parseInt( Strs[15] ) ,  Integer.parseInt ( Strs[16] ) , dateFormat.format ( date ) + " " +  ForeignTeam ) );
+                
+                ListPN.add ( new PlayerName ( Strs [0],dateFormat.format ( date ) + " " + ForeignTeam  ) ) ;
+                //
+                FCounter = FCounter + Integer.parseInt( Strs[2] ) ;
             }   
         } //LOOP END
+        
+        
+        //NOW INSERT STATIC DATA OF THIS GAME INTO TABLE < SGAME >..
+        String qString1 = "insert into SGame values( " + "'" + datetime + "','" + field + "', " + Ivisitors + " ,'" + HostTeam + "','" + ForeignTeam + "', '" + (HostTeam + " " + ForeignTeam) + "', " + Integer.valueOf(HCounter) + ", " + Integer.valueOf(FCounter) + ")" ;
+        statement = conn.createStatement();
+        statement.execute(qString1);
+        statement.close();
+        conn.close ( ) ;
+      
         
         //Now do the relationship between SGame and DGame. Insert JoinGame Table
         for ( int i = 0 ;   i < txt_Counter - 1 ;   i ++ )
@@ -505,10 +518,11 @@ public class Game_DataS extends HttpServlet
             statement.close();
         }
         
+        
         //Now go to SPlayer and save statitistical Data
         for ( int i = 0 ;  i < txt_Counter - 1 ;   i ++ )
         {
-            String qString2 = "insert into DPlayer values( " + "'" + HostTeam + " " + ForeignTeam + "', " + ListPS.get ( i ).GetMinutes ( ) + ", " + ListPS.get ( i ).GetPoints ( )
+            String qString2 = "insert into DPlayer values( " + "'" + ListPS.get ( i ).GetGameName ( ) + "', " + ListPS.get ( i ).GetMinutes ( ) + ", " + ListPS.get ( i ).GetPoints ( )
             + ", " + ListPS.get ( i ).GetFG2 ( ) + ", " + ListPS.get ( i ).GetFG3 ( ) + ", " + ListPS.get ( i ).GetFT ( ) + ", " + ListPS.get ( i ).Getreboundso ( ) + ", " + 
             ListPS.get ( i ).Getreboundsd ( ) + ", " + ListPS.get ( i ).Getreboundst ( ) + ", " + ListPS.get ( i ).Getassists() + ", " + ListPS.get ( i ).Getsteals()
             + ", " + ListPS.get ( i ).Getwrongs() + ", " + ListPS.get ( i ).Getfv() + ", " + ListPS.get ( i ).Getag() + ", " + ListPS.get ( i ).Getcm() + ", " + ListPS.get ( i ).Getrv()
@@ -517,10 +531,50 @@ public class Game_DataS extends HttpServlet
             statement.execute(qString2);
             statement.close();
         }
+        
+        
+        //Find player name and their id to make the relationship between statistical player info and Each Player
+        String qString = "select playername, id_splayer from SPlayer";
+        statement = conn.createStatement();
+        ResultSet result = statement.executeQuery(qString);
+        statement.close();
+        
+        //Now make relationship between SPlayer and DPlayer - every player has statistics in every game - Table JoinPlayer
+        for ( int i = 0 ;   i < ListPN.size ( )  ;   i ++ )
+        {
+            while ( result.next ( ) )
+            {
+                if ( ListPN.get ( i ).GetPlayerName ( ).equals ( result.getString ("playername") ) )
+                {
+                    //in this index, make the process
+                    String idSPLAYER = result.getString ("id_splayer");
+                    String idDPLAYER = ListPN.get ( i ).Getid_dplayer() ;
+                    String idJP = idSPLAYER + " " + idDPLAYER;
+                    String qString2 = "insert into JoinPlayer values( " + "'" + idSPLAYER + "', '" + idDPLAYER + "', '" + idJP + "' " + ")" ;
+                    statement = conn.createStatement();
+                    statement.execute(qString2);
+                    statement.close();
+                }
+            }
+        }
+        
+        
+        //Now last step. Make the Relationship between Static info Game and Team. Each Team has Games. Insert into JoinTeamGame
+        //Host Team
+        String qString4 = "insert into JoinTeamGame values( " + "'" + HostTeam + "', '" + (HostTeam + " " + ForeignTeam) + "', '" + (HostTeam + " " + HostTeam + "-" + ForeignTeam) + "' " + ")";
+        statement = conn.createStatement();
+        statement.execute(qString4);
+        statement.close();
+        
+        //Foreing Team
+        String qString5 = "insert into JoinTeamGame values( " + "'" + ForeignTeam + "', '" + (HostTeam + " " + ForeignTeam) + "', '" + (ForeignTeam + " " + HostTeam + "-" + ForeignTeam) + "' " + ")";
+        statement = conn.createStatement();
+        statement.execute(qString5);
+        statement.close();
+
     } //End of METHOD
     
-    
-    
+
     
     
     
