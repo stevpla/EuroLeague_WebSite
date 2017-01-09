@@ -11,25 +11,23 @@ import java.io.Serializable;
  *
  * @author LU$er
  */
-public class ObjectA implements Serializable
+
+public class ObjectA implements Serializable 
 {
-    private String TeamName, IdName ;
     
-    public ObjectA ( String a, String b )
-    {
-        TeamName = a ;
-        IdName = b ;
-    }
+    private String Name ;
     
-    public String GetTeamName ( )
+    
+    public ObjectA ( String Name )
     {
-        return this.TeamName ;
+        this.Name = Name ;
     }
     
     
-    public String GetIdName ( )
+    public String Get_Name ( )
     {
-        return this.IdName ;
+        return this.Name ;
     }
+    
     
 }
