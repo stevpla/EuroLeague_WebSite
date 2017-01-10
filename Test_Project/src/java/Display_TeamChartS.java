@@ -71,64 +71,150 @@ public class Display_TeamChartS extends HttpServlet
             conn = DriverManager.getConnection(connectionURL, username, password);
             // End connection DB
             
+            
+            ArrayList < Servlet4Object > ListS4O = new ArrayList < Servlet4Object > ( ) ;
+            
             //
             String qString = "select JoinTeamGame.id_sgame from JoinTeamGame where JoinTeamGame.teamname = '" + gi +"' ";
             statement = conn.createStatement();
             ResultSet result = statement.executeQuery(qString);
-            statement.close();
+ 
+            int j = 0 ;
+            //Process
+            int Wins = 0 ;
+            int Loses = 0 ;
+            while ( result.next ( ) )
+            {
+                j ++ ;
+                //Then with the id_sgamego to SGame TABLE And appear the games and Points
+                //for all keys in JOINTEANGAME
+                String qString1 = "select SGame.hname, SGame.fname, SGame.HPoints, SGame.FPoints from SGame where SGame.id_sgame = '" + result.getString ("id_sgame") +"' ";
+                statement = conn.createStatement();
+                ResultSet result1 = statement.executeQuery(qString1);
+                
+                //
+                while ( result1.next ( ) )
+                {
+                    String h = result1.getString("hname");
+                    String f = result1.getString("fname");
+                    int hp = result1.getInt("hpoints");
+                    int fp = result1.getInt("fpoints");
+                    //-------------
+                    ListS4O.add ( new Servlet4Object ( h, f, hp, fp ) ) ;
+                    //------------
+                    if (hp > fp) 
+                    {
+                        if (h.equals(gi)) 
+                        {
+                            Wins++;
+                        } 
+                        else 
+                        {
+                            Loses++;
+                        }
+                    }
+                }
+                //ListSet.add (  result1 );
+            }
             
-            
-            
-            
-            
-            
-            
-            
+          
+           
+            String photo = null ;
             //-----------
             String qString0 = "select photo from Team where Team.teamname = '" + gi +"' ";
             statement = conn.createStatement();
             ResultSet result0 = statement.executeQuery(qString0);
-            statement.close();
+            //statement.close();
             //--------------
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            ArrayList < ResultSet > ListSet = new ArrayList < ResultSet > ( ) ;
-            
-            //Then with the id_sgamego to SGame TABLE And appear the games and Points
-            //for all keys in JOINTEANGAME
-            while ( result.next ( ) )
+            while ( result0.next ( ) )
             {
-              String qString1 = "select SGame.hname, SGame.fname, SGame.HPoints, SGame.FPoints from SGame where SGame.id_sgame = '" + result.getString ("id_sgame") +"' ";
-              statement = conn.createStatement();
-              ResultSet result1 = statement.executeQuery(qString1);
-              ListSet.add (  result1);
-              statement.close();
+                photo = result0.getString("photo") ;
+                System.out.println ( " photo path-> " +  photo ) ;
             }
-           
-             
-             //MIA FORA KAI MESA NA KANO TABLE ME TA STOIXEIA TOY RESULT1
-            //Kai meta to chart
-             
-             
-             
+            
+            
+            
+            
+            
+            
+            
+            
+            
             
              
-             
+            //MIA FORA KAI MESA NA KANO TABLE ME TA STOIXEIA TOY RESULT1
+            //Kai meta to chart
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet Display_TeamChartS</title>");            
+            //
+            out.println("<title>Servlet Display_TeamChartS</title>"); 
+            out.println("<script type=\"text/javascript\" src=\"https://www.gstatic.com/charts/loader.js\"></script>");
+            out.println("<script type=\"text/javascript\">");
+            out.println("google.charts.load('current', {'packages':['corechart']});");
+            out.println("google.charts.setOnLoadCallback(drawChart);");
+            out.println("function drawChart() {");
+            out.println("var data = google.visualization.arrayToDataTable([");
+            out.println("['Games', 'Hours per Day'],");
+            out.println("['Wins', " + Wins + "],");
+            out.println("['Loses', " + Loses + "]");
+            out.println("]);");
+            out.println("var options = {");
+            out.println("title: 'Games:Wins/Loses'");
+            out.println("};");
+            out.println("var chart = new google.visualization.PieChart(document.getElementById('piechart'));");
+            out.println("chart.draw(data, options);");
+            out.println("}");
+            out.println("</script>");
+            //
             out.println("</head>");
-            out.println("<body>");
-            out.println("<img src=\"" + result0.getString ("photo") + "\" alt=\"Team_Photo\"  style=\"width:304px;height:228px;\">");
+            out.println("<body style=\"background-color: #369;\">");
+            out.println("<img src=\"" + photo+ "\" alt=\"Team_Photo\"  style=\"width:304px;height:228px;\">");
+            out.println ( "<div>" + gi+ "</div><br></br><br></br>" ) ;
+                 if ( j == 0 )
+                 {
+                    out.println ( "<p>" + "there is no Games.." + "</p>" ) ;
+                 }
+                 else
+                 {
+                    //create table HTML
+                     out.println("<style>");
+                     out.println("table {");
+                     out.println("font-family: arial, sans-serif;");
+                     out.println("border-collapse: collapse;");
+                     out.println("width: 50%;");
+                     out.println("}");
+                     out.println("td, th {");
+                     out.println("border: 2px solid #dddddd;");
+                     out.println("text-align: left;");
+                     out.println("padding: 8px;");
+                     out.println("}");
+                     out.println("tr:nth-child(even) {");
+                     out.println("background-color: #ddfddd;");
+                     out.println("}");
+                     out.println("</style>");
+                     //-------------------
+                     out.println("<table>");
+                     out.println("<tr>");
+                     out.println("<th>Games</th>");
+                     out.println("<th>Score</th>");
+                     out.println("</tr>");
+                     //-------------
+                     for ( int i = 0 ;   i < ListS4O.size ( ) ;  i ++ )
+                     {
+                             String h = ListS4O.get ( i ).GetHname();
+                             String f = ListS4O.get ( i ).GetFname();
+                             int hp = ListS4O.get ( i ).GetHp();
+                             int fp = ListS4O.get ( i ).GetFp();
+                             //-------------
+                             out.println("<tr>");
+                             out.println("<td>" +  h + "-" + f + "</td>");
+                             out.println("<td>" + hp + "-" + + fp + "</td>");
+                             out.println("</tr>");
+                     }
+                     out.println("</table>");
+                     out.println("<div id=\"piechart\" style=\"background-color: #369;\"  \"width: 400px; height: 300px;\"></div>");
+                 }
             out.println("</body>");
             out.println("</html>");
         }
