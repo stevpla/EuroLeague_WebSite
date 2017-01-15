@@ -5,8 +5,6 @@
  */
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
@@ -16,12 +14,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -300,6 +298,8 @@ public class Game_DataS extends HttpServlet
             if ( line.equals ( "" ) )
             {
                 flag_before = true ;
+                continue ;
+                //dont check ifs, just skip line
             }
             
             //HostTeam
@@ -368,26 +368,6 @@ public class Game_DataS extends HttpServlet
                 }
                 
                 
-                  /*System.out.println ( " -> Strs[0] -> " + Strs[0]);
-                  System.out.println ( " ->  Min -> " + MIN );
-                  System.out.println ( " -> DBL1_FG2 -> " + DBL1_FG2) ;
-                  System.out.println ( " -> DBL2_FG3 -> " + DBL2_FG3 );
-                  System.out.println ( " -> DBL3_FT-> " + DBL3_FT );
-                  System.out.println ( " -> Integer.parseInt( Strs[2] ) -> " + Strs[2]  );
-                  System.out.println ( " -> Integer.parseIntStrs[6]  -> " +  Strs[6] );
-                  System.out.println ( " ->  Integer.parseIntStrs[7] -> " +  Strs[7] ) ;
-                  System.out.println ( " ->  Integer.parseIntStrs[8]-> " +  Strs[8] );
-                  System.out.println ( " ->  Integer.parseIntStrs[9]-> " +  Strs[9] );
-                  System.out.println ( " ->   Integer.parseIntStrs[10]-> " +   Strs[10] );
-                  System.out.println ( " ->   Integer.parseIntStrs[11] -> " +   Strs[11] );
-                  System.out.println ( " ->   Integer.parseIntStrs[12]-> " +  Strs[12] )  ;
-                  System.out.println ( " ->  Integer.parseIntStrs[13] -> " +    Strs[13]   );
-                  System.out.println ( " -> Integer.parseIntStrs[14] -> " +  Strs[14] )    ;
-                  System.out.println ( " -> Integer.parseIntStrs[15] -> " +  Strs[15]      );
-                  System.out.println ( " -> Integer.parseIntStrs[16] -> " +Strs[16]      );
-                  System.out.println ( " -> Integer.parseIntStrs[17] -> " + HostTeam + " " + Strs[0]      );*/
-                  
-                
                 String qString2 = "insert into DGame values( " + "'" + HostTeam + "','" + Strs[0] + "'," + MIN + ", " + Integer.parseInt( Strs[2] ) + ", " + DBL1_FG2 + ", " + DBL2_FG3 + ", " + 
                 DBL3_FT + ", " + Integer.parseInt( Strs[6] ) + ", " + Integer.parseInt( Strs[7] ) + ", " + Integer.parseInt( Strs[8] ) + ", " + Integer.parseInt( Strs[9] ) + ", " 
                 + Integer.parseInt( Strs[10] ) + ", " + Integer.parseInt( Strs[11] ) + ", " + Integer.parseInt( Strs[12] ) + ", " + Integer.parseInt( Strs[13] ) + ", " + 
@@ -402,12 +382,25 @@ public class Game_DataS extends HttpServlet
                 
                 ListA.add ( new ObjectA ( HostTeam + " " + Strs[0] ) ) ;
                 
+                //
+                char[] chars = "abcdefghijklmnopqrstuvwxyz".toCharArray();
+                StringBuilder sb = new StringBuilder();
+                Random random = new Random();
+                for (int t = 0; t < 20; t++) 
+                {
+                    char c = chars[random.nextInt(chars.length)];
+                    sb.append(c);
+                }
+                String output = sb.toString();
+                
                 ListPS.add ( new Player_Statistics ( HostTeam + " " + ForeignTeam, MIN, Integer.parseInt( Strs[2] ), DBL1_FG2, DBL2_FG3, DBL3_FT, Integer.parseInt( Strs[6] ),  Integer.parseInt( Strs[7] ),
                 Integer.parseInt( Strs[8] ) ,  Integer.parseInt( Strs[9] ) ,  Integer.parseInt( Strs[10] ) ,  Integer.parseInt( Strs[11] ) , Integer.parseInt( Strs[12] ) , Integer.parseInt( Strs[13] ), 
-                Integer.parseInt( Strs[14] ) ,  Integer.parseInt( Strs[15] ) ,  Integer.parseInt ( Strs[16] ) , dateFormat.format ( date ) + " " + HostTeam ) );
+                Integer.parseInt( Strs[14] ) ,  Integer.parseInt( Strs[15] ) ,  Integer.parseInt ( Strs[16] ) , dateFormat.format ( date ) + " " + HostTeam + output ) );
                 
-                ListPN.add ( new PlayerName ( Strs [0],dateFormat.format ( date ) + " " + HostTeam  ) ) ;
                 //
+                ListPN.add ( new PlayerName ( Strs[ 0 ], dateFormat.format ( date ) + " " + HostTeam + output) ) ;
+                //
+                
                 HCounter = HCounter + Integer.parseInt( Strs[2] ) ;
             }
             
@@ -415,7 +408,7 @@ public class Game_DataS extends HttpServlet
             if ( flag_before == true )
             {
                 String [] Strs = line.split (",") ;
-                
+                System.out.println("Line is 0- -- =>> " + line ) ;
                 //first process Minutes
                 String g = "." ;
                 String[] temp1 = Strs[1].split(":");  //split Minutes
@@ -489,11 +482,23 @@ public class Game_DataS extends HttpServlet
                 
                 ListA.add ( new ObjectA ( ForeignTeam + " " + Strs[0] ) ) ;
                 
+                //
+                char[] chars = "abcdefghijklmnopqrstuvwxyz".toCharArray();
+                StringBuilder sb = new StringBuilder();
+                Random random = new Random();
+                for (int t = 0; t < 20; t++) 
+                {
+                    char c = chars[random.nextInt(chars.length)];
+                    sb.append(c);
+                }
+                String output = sb.toString();
+                
                 ListPS.add ( new Player_Statistics (  HostTeam + " " + ForeignTeam, MIN, Integer.parseInt( Strs[2] ), DBL1_FG2, DBL2_FG3, DBL3_FT, Integer.parseInt( Strs[6] ),  Integer.parseInt( Strs[7] ),
                 Integer.parseInt( Strs[8] ) ,  Integer.parseInt( Strs[9] ) ,  Integer.parseInt( Strs[10] ) ,  Integer.parseInt( Strs[11] ) , Integer.parseInt( Strs[12] ) , Integer.parseInt( Strs[13] ), 
-                Integer.parseInt( Strs[14] ) ,  Integer.parseInt( Strs[15] ) ,  Integer.parseInt ( Strs[16] ) , dateFormat.format ( date ) + " " +  ForeignTeam ) );
+                Integer.parseInt( Strs[14] ) ,  Integer.parseInt( Strs[15] ) ,  Integer.parseInt ( Strs[16] ) , dateFormat.format ( date ) + " " +  ForeignTeam + output) );
                 
-                ListPN.add ( new PlayerName ( Strs [0],dateFormat.format ( date ) + " " + ForeignTeam  ) ) ;
+                //
+                ListPN.add ( new PlayerName ( Strs[ 0 ], dateFormat.format ( date ) + " " +  ForeignTeam + output ) ) ;
                 //
                 FCounter = FCounter + Integer.parseInt( Strs[2] ) ;
             }   
@@ -507,6 +512,14 @@ public class Game_DataS extends HttpServlet
         statement.close();
         conn.close ( ) ;
       
+        
+        //open conn again
+        //Connect to DB
+        Class.forName("oracle.jdbc.driver.OracleDriver").newInstance();
+        String connectionURLe = "jdbc:oracle:thin:@" + serverURL + ":" + serverPort + ":" + serverSID;
+        conn = DriverManager.getConnection(connectionURLe, username, password);
+        // End connection DB
+        
         
         //Now do the relationship between SGame and DGame. Insert JoinGame Table
         for ( int i = 0 ;   i < txt_Counter - 1 ;   i ++ )
@@ -526,7 +539,8 @@ public class Game_DataS extends HttpServlet
             + ", " + ListPS.get ( i ).GetFG2 ( ) + ", " + ListPS.get ( i ).GetFG3 ( ) + ", " + ListPS.get ( i ).GetFT ( ) + ", " + ListPS.get ( i ).Getreboundso ( ) + ", " + 
             ListPS.get ( i ).Getreboundsd ( ) + ", " + ListPS.get ( i ).Getreboundst ( ) + ", " + ListPS.get ( i ).Getassists() + ", " + ListPS.get ( i ).Getsteals()
             + ", " + ListPS.get ( i ).Getwrongs() + ", " + ListPS.get ( i ).Getfv() + ", " + ListPS.get ( i ).Getag() + ", " + ListPS.get ( i ).Getcm() + ", " + ListPS.get ( i ).Getrv()
-            + ", " + ListPS.get ( i ).Getrip ( ) + "," + ListPS.get ( i ).Get_id_dplayer( ) ;
+            + ", " + ListPS.get ( i ).Getrip ( ) + ", '" + ( ListPS.get ( i ).Get_id_dplayer( ) )  + "' )" ;
+            System.out.println("XAXA EINAI -> " + qString2 ) ;
             statement = conn.createStatement();
             statement.execute(qString2);
             statement.close();
@@ -537,12 +551,12 @@ public class Game_DataS extends HttpServlet
         String qString = "select playername, id_splayer from SPlayer";
         statement = conn.createStatement();
         ResultSet result = statement.executeQuery(qString);
-        statement.close();
+     
         
         //Now make relationship between SPlayer and DPlayer - every player has statistics in every game - Table JoinPlayer
-        for ( int i = 0 ;   i < ListPN.size ( )  ;   i ++ )
+        while ( result.next ( ) )
         {
-            while ( result.next ( ) )
+            for ( int i = 0 ;   i < ListPN.size ( )  ;   i ++ ) 
             {
                 if ( ListPN.get ( i ).GetPlayerName ( ).equals ( result.getString ("playername") ) )
                 {
@@ -571,6 +585,7 @@ public class Game_DataS extends HttpServlet
         statement = conn.createStatement();
         statement.execute(qString5);
         statement.close();
+        conn.close();
 
     } //End of METHOD
     

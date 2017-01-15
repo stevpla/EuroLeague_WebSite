@@ -182,7 +182,7 @@ public class Display_TeamChartS extends HttpServlet
                      out.println("table {");
                      out.println("font-family: arial, sans-serif;");
                      out.println("border-collapse: collapse;");
-                     out.println("width: 50%;");
+                     out.println("width:40%;");
                      out.println("}");
                      out.println("td, th {");
                      out.println("border: 2px solid #dddddd;");

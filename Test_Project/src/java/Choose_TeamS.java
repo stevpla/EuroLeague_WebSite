@@ -53,7 +53,7 @@ public class Choose_TeamS extends HttpServlet
         try 
         {
            ArrayList < String > ListPhoto = new ArrayList < String > ( ) ;
-            ArrayList < String > ListName = new ArrayList < String > ( ) ;
+           ArrayList < String > ListName = new ArrayList < String > ( ) ;
            out = response.getWriter() ;
            
             ///Connect to DB
@@ -126,21 +126,6 @@ public class Choose_TeamS extends HttpServlet
                 out.println("</div>");
             }
     
-    
-
-            out.println("<!-- Pagination -->");
-            out.println("<div class=\"w3-center w3-padding-32\">");
-            out.println("<ul class=\"w3-pagination\">");
-            out.println("<li><a class=\"w3-black\" href=\"#\">1</a></li>");
-            out.println("<li><a class=\"w3-hover-black\" href=\"#\">2</a></li>");
-            out.println("<li><a class=\"w3-hover-black\" href=\"#\">3</a></li>");
-            out.println("<li><a class=\"w3-hover-black\" href=\"#\">4</a></li>");
-            out.println("<li><a class=\"w3-hover-black\" href=\"#\">»</a></li>");
-            out.println("</ul>");
-            out.println("</div>");
-  
- 
-
             out.println("<!-- End page content -->");
             out.println("</div>");
 
